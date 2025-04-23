@@ -1,5 +1,13 @@
 '''
-https://gymnasium.farama.org/introduction/train_agent/https://gymnasium.farama.org/introduction/create_custom_env/
+http://mixdrop.ps/f/jd80n1mru7790l7?download?
+http://mixdrop.ps/f/jdj8k0qju088rd?download?
+shoppers Deep Relief Lidocaine 
+paxil
+250 Henderson hwy @11 nb@johnson
+https://www.etsy.com/ca/listing/1828046966/50-red-hydrangea-flower-seeds-hydrangea?
+abhihassim1987@outlook.com
+https://gymnasium.farama.org/introduction/train_agent
+/https://gymnasium.farama.org/introduction/create_custom_env/
 1. Create a Custom Gym Environment (MovingTargetEnv)
 o The agent starts in a random cell on a 5x5 grid.
 o The target starts on a random cell and moves randomly at every step.
@@ -21,106 +29,162 @@ o Comment on learning behavior (Does the agent learn to reach the target quickly
 o Make the grid size increase gradually during training (e.g., start with 3x3, then 5x5, 
 then 7x7). Report how this affects learning speed and performance.
 
-meta=
-import gymnasium as gym
-import numpy as np
-import random
-
-import gym
-from gym.spaces import Discrete, Box
-import numpy as np
-import random
-
-class MovingTargetEnv(gym.Env):
-    metadata = ['render.modes']
-
-    def __init__(self, width=5, height=5):
-        self.width = width
-        self.height = height
-        self.agent_pos = None
-        self.target_pos = None
-        self.step_count = 0
-        self.action_space = Discrete(4)  # up, down, left, right
-        self.observation_space = Box(low=0, high=max(width, height), shape=(4,), dtype=np.uint8)
-
-    def reset(self):
-        self.agent_pos = [random.randint(0, self.width - 1), random.randint(0, self.height - 1)]
-        self.target_pos = [random.randint(0, self.width - 1), random.randint(0, self.height - 1)]
-        while self.target_pos == self.agent_pos:
-            self.target_pos = [random.randint(0, self.width - 1), random.randint(0, self.height - 1)]
-        self.step_count = 0
-        return np.array(self.agent_pos + self.target_pos), {}
-
-    def step(self, action):
-        # Move agent
-        if action == 0 and self.agent_pos[1] > 0:  # up
-            self.agent_pos[1] -= 1
-        elif action == 1 and self.agent_pos[1] < self.height - 1:  # down
-            self.agent_pos[1] += 1
-        elif action == 2 and self.agent_pos[0] > 0:  # left
-            self.agent_pos[0] -= 1
-        elif action == 3 and self.agent_pos[0] < self.width - 1:  # right
-            self.agent_pos[0] += 1
-        else:
-            return np.array(self.agent_pos + self.target_pos), -1, False, False, {}
-
-        # Move target randomly
-        target_action = random.randint(0, 3)
-        if target_action == 0 and self.target_pos[1] > 0:  
-            self.target_pos[1] -= 1
-        elif target_action == 1 and self.target_pos[1] < self.height - 1:  
-            self.target_pos[1] += 1
-        elif target_action == 2 and self.target_pos[0] > 0:  
-            self.target_pos[0] -= 1
-        elif target_action == 3 and self.target_pos[0] < self.width - 1:  
-            self.target_pos[0] += 1
-
-        self.step_count += 1
-        reward = -0.1
-        done = False
-        if self.agent_pos == self.target_pos:
-            reward = 10
-            done = True
-        elif self.step_count >= 50:
-            done = True
-
-        return np.array(self.agent_pos + self.target_pos), reward, done, False, {}
-
-    def render(self, mode='console'):
-        # Implement rendering if needed
-        pass
-
-#Train
-from stable_baselines3 import PPO
-from stable_baselines3.common.env_util import make_vec_env
-
-# Create the environment
-env = MovingTargetEnv()
-
-# Vectorized environment for parallel training
-vec_env = make_vec_env(lambda: env, n_envs=4)
-
-# PPO model
-model = PPO("MlpPolicy", vec_env, verbose=1)
-
-# Train the model
-model.learn(total_timesteps=100000)
-
-# Save the model
-model.save("ppo_movingtarget")
-
 '''
 python Asg14RL.py
-
+import matplotlib
 import gymnasium as gym
 from stable_baselines3 import PPO
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
+from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3.common.utils import set_random_seed
+from stable_baselines3 import SAC
+from stable_baselines3.common.envs import SimpleMultiObsEnv
+import numpy as np
+import random
+import matplotlib.pyplot as plt
+from stable_baselines3.common import results_plotter
+from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.results_plotter import load_results, ts2xy, plot_results
+from stable_baselines3.common.noise import NormalActionNoise
+from stable_baselines3.common.callbacks import BaseCallback
+from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.env_util import make_atari_env
+from stable_baselines3.common.vec_env import VecFrameStack
+from pathlib import Path
+from stable_baselines3.common.vec_env import VecNormalize
+from stable_baselines3.common.noise import NormalActionNoise
+from stable_baselines3.common.evaluation import evaluate_policy
+import torch as t
+
+from pathlib import Path
+from typing import NamedTuple
+from gym.spaces import Discrete, Box
+import pandas as pd
+import seaborn as sns
+from gymnasium.envs.toy_text.frozen_lake import generate_random_map
+
+sns.set_theme()
+
+# %load_ext lab_black
+
+# Env
+from typing import Optional
+class MovingTargetEnv(gym.Env):
+
+    def __init__(self, size: int = 5):
+        # The size of the square grid
+        self.size = size
+
+        # Define the agent and target location; randomly chosen in `reset` and updated in `step`
+        self._agent_location = np.array([-1, -1], dtype=np.int32)
+        self._target_location = np.array([-1, -1], dtype=np.int32)
+
+        # Observations are dictionaries with the agent's and the target's location.
+        # Each location is encoded as an element of {0, ..., `size`-1}^2
+        self.observation_space = gym.spaces.Dict(
+            {
+                "agent": gym.spaces.Box(0, size - 1, shape=(2,), dtype=int),
+                "target": gym.spaces.Box(0, size - 1, shape=(2,), dtype=int),
+            }
+        )
+
+        # have 4 actions, corresponding to "right", "up", "left", "down"
+        self.action_space = gym.spaces.Discrete(4)
+        # Dictionary maps the abstract actions to the directions on the grid
+        self._action_to_direction = {
+            0: np.array([1, 0]),  # right
+            1: np.array([0, 1]),  # up
+            2: np.array([-1, 0]),  # left
+            3: np.array([0, -1]),  # down
+        }
+    
+    def _get_obs(self):
+        return {"agent": self._agent_location, "target": self._target_location} #translates the environment’s state into an observation
+    def _get_info(self):
+        return {
+            "distance": np.linalg.norm(
+                self._agent_location - self._target_location, ord=1
+            )
+        }#provide the manhattan distance between the agent and the target
+    '''Reset func to initiate a new episode for an environment. the reset() needs to randomly choose the agent and target’s positions
+    (repeat this if they have the same position).
+    The return type of reset() is a tuple of the initial observation and any auxiliary information.'''
+    def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
+        # need the following line to seed self.np_random
+        super().reset(seed=seed)
+
+        # Choose the agent's location uniformly at random
+        self._agent_location = self.np_random.integers(0, self.size, size=2, dtype=int)
+
+        #  will sample the target's location randomly until it does not coincide with the agent's location
+        self._target_location = self._agent_location
+        while np.array_equal(self._target_location, self._agent_location):
+            self._target_location = self.np_random.integers(
+                0, self.size, size=2, dtype=int
+            )
+
+        observation = self._get_obs()
+        info = self._get_info()
+
+        return observation, info
+    ''' accepts an action and computes the state of the environment after the applying the action,
+    returning a tuple of the next observation, the resulting reward,
+    if the environment has terminated, if the environment has truncated and auxiliary information
+    
+     use the self._action_to_direction to convert the discrete action (e.g., 2) to a grid direction with our agent location. To prevent the agent from going out of bounds of the grid, we clip the agent’s location to stay within bounds.
+
+     compute the agent’s reward by checking if the agent’s current position is equal to the target’s location.
+
+     Since the environment doesn’t truncate internally (we can apply a time limit wrapper to the environment during make()),
+      
+     permanently set truncated to False.
+
+    once again use _get_obs and _get_info to obtain the agent’s observation and auxiliary information.
+    '''
+    def step(self, action):
+        # Map the action (element of {0,1,2,3}) to the direction we walk in
+        direction = self._action_to_direction[action]
+        # We use `np.clip` to make sure we don't leave the grid bounds
+        self._agent_location = np.clip(
+            self._agent_location + direction, 0, self.size - 1
+        )
+
+        # An environment is completed if and only if the agent has reached the target
+        terminated = np.array_equal(self._agent_location, self._target_location)
+        truncated = False
+        reward = 1 if terminated else 0  # the agent is only reached at the end of the episode
+        observation = self._get_obs()
+        info = self._get_info()
+
+        return observation, reward, terminated, truncated, info
+'''Registering / making'''
+gym.register(
+    id="gymnasium_env/GridWorld-v0",
+    entry_point=MovingTargetEnv,
+)
+
+gym.make("gymnasium_env/GridWorld-v0")
+<OrderEnforcing<PassiveEnvChecker<GridWorld<gymnasium_env/GridWorld-v0>
+gym.make("gymnasium_env/GridWorld-v0", max_episode_steps=50)
+<TimeLimit<OrderEnforcing<PassiveEnvChecker<GridWorld<gymnasium_env/GridWorld-v0>>
+env = gym.make("gymnasium_env/GridWorld-v0", size=10)
+env.unwrapped.size 10
+gym.make_vec("gymnasium_env/GridWorld-v0", num_envs=3)
+SyncVectorEnv(gymnasium_env/GridWorld-v0, num_envs=3)
+
+# Train
+from collections import defaultdict
+
+
+
+# total
 env = gym.make("GridWorldEnv-v0")
 model = PPO("MlpPolicy", env, verbose=1)
 model.learn(total_timesteps=10000)
 gymnasium.pprint_registry()
 
-from typing import Optional
-import numpy as np
+
+'''meta='''
 
 class MovingTargetEnv(gym.Env):
 
