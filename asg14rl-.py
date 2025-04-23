@@ -90,7 +90,6 @@ import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.callbacks import EvalCallback
-from moving_target_env import MovingTargetEnv  # Import the custom environment
 
 # Create the environment
 env = MovingTargetEnv()
@@ -133,7 +132,6 @@ while not terminated:
 import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.evaluation import evaluate_policy
-from moving_target_env import MovingTargetEnv
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -180,7 +178,6 @@ import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.callbacks import EvalCallback, BaseCallback
-from moving_target_env import MovingTargetEnv
 
 class GridSizeCallback(BaseCallback):
     def __init__(self, env, verbose=0):
