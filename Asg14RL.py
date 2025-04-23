@@ -1,12 +1,32 @@
 '''
 http://mixdrop.ps/f/jd80n1mru7790l7?download?
 http://mixdrop.ps/f/jdj8k0qju088rd?download?
-shoppers Deep Relief Lidocaine 
+https://www.linkedin.com/posts/north-slave-m%C3%A9tis-alliance_environmental-analystnsma-activity-7312504644910346241-emfE
+https://www.linkedin.com/comm/feed/update/urn:li:activity:7319043706928484352?
+https://deltawaterfowl.org/two-students-awarded-dave-ankney-and-sandi-johnson-graduate-research-scholarship/
+
+https://www.linkedin.com/comm/feed/update/urn:li:activity:7318004048995983361
+https://www.rrc.ca/truth-and-reconciliation/2025/04/14/honouring-voices-shaping-identity-an-update-on-our-indigenous-visual-identity-project/
+
+Join us for noon-hour sessions to learn about Ininew culture with Ivana Yellowback.
+We are honored to welcome back Ivana Yellowback to RRC Polytech for two special sessions of cultural sharing and learning.
+
+Wednesday, April 23 • Exchange District Campus, Room P107 • 12:00 – 1:00 PM
+Thursday, April 24 • Notre Dame Campus, Room F205 • 12:00 – 1:00 PM
+
+Ivana’s teachings offer a unique opportunity to deepen our understanding of Indigenous culture, traditions, and ways of knowing. Everyone is welcome to join, listen, and engage in this enriching experience.
+shoppers Deep Relief Lidocaine
 paxil
 250 Henderson hwy @11 nb@johnson
 https://www.etsy.com/ca/listing/1828046966/50-red-hydrangea-flower-seeds-hydrangea?
+hydrangea macrophylla fall rebloom variety seeds
 abhihassim1987@outlook.com
+/d2l/lms/dropbox/user/folder_submit_files.d2l?db=472419&grpid=0&isprv=0&bp=0&ou=561266
 https://github.com/settings/billing/summary
+https://www.google.co.kr/search?q=ros2+tutorial+wth+custom&sca_esv=0841a0c4fe98f0f5&source=hp&ei=JBQBaNnUI6PE0PEPtMqusQI&iflsig=ACkRmUkAAAAAaAEiNI-YBkll877J9ZRjZbxejIYT7wCV&ved=0ahUKEwjZ9uysp9-MAxUjIjQIHTSlKyYQ4dUDCBA&uact=5&oq=ros2+tutorial+wth+custom&gs_lp=Egdnd3Mtd2l6Ihhyb3MyIHR1dG9yaWFsIHd0aCBjdXN0b20yBxAhGKABGAoyBxAhGKABGAoyBxAhGKABGAoyBRAhGJ8FMgUQIRifBTIFECEYnwUyBRAhGJ8FMgUQIRifBTIFECEYnwUyBRAhGJ8FSP45UJsFWKY4cAF4AJABAJgBfqABrhOqAQUxMi4xMrgBA8gBAPgBAZgCGaACvBSoAgrCAgoQABgDGOoCGI8BwgIREC4YgAQYsQMY0QMYgwEYxwHCAgsQABiABBixAxiDAcICCxAuGIAEGLEDGIMBwgIIEAAYgAQYsQPCAg4QLhiABBixAxiDARiKBcICDhAAGIAEGLEDGIMBGIoFwgIFEAAYgATCAgsQLhiABBjRAxjHAcICCBAuGIAEGNQCwgIOEC4YgAQYxwEYjgUYrwHCAgsQLhiABBixAxjUAsICCBAuGIAEGLEDwgIFEC4YgATCAggQLhiABBjlBMICCBAAGIAEGKIEwgIFEAAY7wXCAgsQABiABBiGAxiKBcICBhAAGBYYHsICBRAhGKABwgIEECEYFZgDBvEFRFu5N93GlKSSBwQ4LjE3oAfapQGyBwQ3LjE3uAe2FA&sclient=gws-wiz&sei=NhQBaJe2DKHF0PEPq-7i8Qc#fpstate=ive&vld=cid:baac61c2,vid:EosEikbZhiM,st:0
+https://stable-baselines3.readthedocs.io/en/master/modules/sac.html
+https://gymnasium.farama.org/environments/box2d/bipedal_walker/
+https://gymnasium.farama.org/tutorials/gymnasium_basics/load_quadruped_model/
 https://gymnasium.farama.org/introduction/train_agent
 /https://gymnasium.farama.org/introduction/create_custom_env/
 1. Create a Custom Gym Environment (MovingTargetEnv)
@@ -183,6 +203,12 @@ env = gym.make("GridWorldEnv-v0")
 model = PPO("MlpPolicy", env, verbose=1)
 model.learn(total_timesteps=10000)
 gymnasium.pprint_registry()
+
+obs = vec_env.reset()
+while True:
+    action, _states = model.predict(obs)
+    obs, rewards, dones, info = vec_env.step(action)
+    vec_env.render("human")
 
 
 '''meta='''
