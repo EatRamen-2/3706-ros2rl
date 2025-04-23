@@ -1,0 +1,310 @@
+'''
+https://gymnasium.farama.org/introduction/train_agent/https://gymnasium.farama.org/introduction/create_custom_env/
+1. Create a Custom Gym Environment (MovingTargetEnv)
+o The agent starts in a random cell on a 5x5 grid.
+o The target starts on a random cell and moves randomly at every step.
+o The agent can move up/down/left/right (4 discrete actions).
+o The episode ends when the agent reaches the target or after 50 steps.
+o Reward:
+▪ +10 for reaching the target
+▪ -0.1 for each step (to encourage faster reaching)
+▪ -1 if trying to move out of bounds
+2. Register the Environment using Gymnasium API
+3. Train the Agent using SB3
+o Use any on-policy algorithm (e.g., PPO or A2C)
+o Train for at least 10,000 timesteps
+4. Evaluate and Visualize
+o Plot the average reward over episodes (use evaluate_policy)
+o Display a few random episodes using a text-based grid (or matplotlib if desired)
+o Comment on learning behavior (Does the agent learn to reach the target quickly?)
+5. [Bonus] +2 points
+o Make the grid size increase gradually during training (e.g., start with 3x3, then 5x5, 
+then 7x7). Report how this affects learning speed and performance.
+
+meta=
+import gymnasium as gym
+import numpy as np
+import random
+
+import gym
+from gym.spaces import Discrete, Box
+import numpy as np
+import random
+
+class MovingTargetEnv(gym.Env):
+    metadata = ['render.modes']
+
+    def __init__(self, width=5, height=5):
+        self.width = width
+        self.height = height
+        self.agent_pos = None
+        self.target_pos = None
+        self.step_count = 0
+        self.action_space = Discrete(4)  # up, down, left, right
+        self.observation_space = Box(low=0, high=max(width, height), shape=(4,), dtype=np.uint8)
+
+    def reset(self):
+        self.agent_pos = [random.randint(0, self.width - 1), random.randint(0, self.height - 1)]
+        self.target_pos = [random.randint(0, self.width - 1), random.randint(0, self.height - 1)]
+        while self.target_pos == self.agent_pos:
+            self.target_pos = [random.randint(0, self.width - 1), random.randint(0, self.height - 1)]
+        self.step_count = 0
+        return np.array(self.agent_pos + self.target_pos), {}
+
+    def step(self, action):
+        # Move agent
+        if action == 0 and self.agent_pos[1] > 0:  # up
+            self.agent_pos[1] -= 1
+        elif action == 1 and self.agent_pos[1] < self.height - 1:  # down
+            self.agent_pos[1] += 1
+        elif action == 2 and self.agent_pos[0] > 0:  # left
+            self.agent_pos[0] -= 1
+        elif action == 3 and self.agent_pos[0] < self.width - 1:  # right
+            self.agent_pos[0] += 1
+        else:
+            return np.array(self.agent_pos + self.target_pos), -1, False, False, {}
+
+        # Move target randomly
+        target_action = random.randint(0, 3)
+        if target_action == 0 and self.target_pos[1] > 0:  
+            self.target_pos[1] -= 1
+        elif target_action == 1 and self.target_pos[1] < self.height - 1:  
+            self.target_pos[1] += 1
+        elif target_action == 2 and self.target_pos[0] > 0:  
+            self.target_pos[0] -= 1
+        elif target_action == 3 and self.target_pos[0] < self.width - 1:  
+            self.target_pos[0] += 1
+
+        self.step_count += 1
+        reward = -0.1
+        done = False
+        if self.agent_pos == self.target_pos:
+            reward = 10
+            done = True
+        elif self.step_count >= 50:
+            done = True
+
+        return np.array(self.agent_pos + self.target_pos), reward, done, False, {}
+
+    def render(self, mode='console'):
+        # Implement rendering if needed
+        pass
+
+#Train
+from stable_baselines3 import PPO
+from stable_baselines3.common.env_util import make_vec_env
+
+# Create the environment
+env = MovingTargetEnv()
+
+# Vectorized environment for parallel training
+vec_env = make_vec_env(lambda: env, n_envs=4)
+
+# PPO model
+model = PPO("MlpPolicy", vec_env, verbose=1)
+
+# Train the model
+model.learn(total_timesteps=100000)
+
+# Save the model
+model.save("ppo_movingtarget")
+
+'''
+python Asg14RL.py
+
+import gymnasium as gym
+from stable_baselines3 import PPO
+env = gym.make("GridWorldEnv-v0")
+model = PPO("MlpPolicy", env, verbose=1)
+model.learn(total_timesteps=10000)
+gymnasium.pprint_registry()
+
+from typing import Optional
+import numpy as np
+
+class MovingTargetEnv(gym.Env):
+
+    def __init__(self, size: int = 5):
+        # The size of the square grid
+        self.size = size
+
+        # Define the agent and target location; randomly chosen in `reset` and updated in `step`
+        self._agent_location = np.array([-1, -1], dtype=np.int32)
+        self._target_location = np.array([-1, -1], dtype=np.int32)
+
+        # Observations are dictionaries with the agent's and the target's location.
+        # Each location is encoded as an element of {0, ..., `size`-1}^2
+        self.observation_space = gym.spaces.Dict(
+            {
+                "agent": gym.spaces.Box(0, size - 1, shape=(2,), dtype=int),
+                "target": gym.spaces.Box(0, size - 1, shape=(2,), dtype=int),
+            }
+        )
+
+        # We have 4 actions, corresponding to "right", "up", "left", "down"
+        self.action_space = gym.spaces.Discrete(4)
+        # Dictionary maps the abstract actions to the directions on the grid
+        self._action_to_direction = {
+            0: np.array([1, 0]),  # right
+            1: np.array([0, 1]),  # up
+            2: np.array([-1, 0]),  # left
+            3: np.array([0, -1]),  # down
+        }
+
+    def _get_obs(self):
+        return {"agent": self._agent_location, "target": self._target_location}#translates the environment’s state into an observation
+    def _get_info(self):
+        return {
+            "distance": np.linalg.norm(
+                self._agent_location - self._target_location, ord=1
+            )
+        }#provide the manhattan distance between the agent and the target
+#info will also contain some data that is only available inside the Env.step() method (e.g., individual reward terms).
+#In that case, we would have to update the dictionary that is returned by _get_info in Env.step().
+
+'''
+purpose of reset() is to initiate a new episode for an environment and has two parameters: seed and options. The seed can be used to initialize the random number generator to a deterministic state and options can be used to specify values used within reset. On the first line of the reset, you need to call super().reset(seed=seed) which will initialize the random number generate (np_random) to use through the rest of the reset()'''
+
+#the reset() needs to randomly choose the agent and target’s positions (we repeat this if they have the same position).
+#The return type of reset() is a tuple of the initial observation and any auxiliary information.
+
+    def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
+        # We need the following line to seed self.np_random
+        super().reset(seed=seed)
+
+        # Choose the agent's location uniformly at random
+        self._agent_location = self.np_random.integers(0, self.size, size=2, dtype=int)
+
+        # We will sample the target's location randomly until it does not coincide with the agent's location
+        self._target_location = self._agent_location
+        while np.array_equal(self._target_location, self._agent_location):
+            self._target_location = self.np_random.integers(
+                0, self.size, size=2, dtype=int
+            )
+
+        observation = self._get_obs()
+        info = self._get_info()
+
+        return observation, info
+
+#use the self._action_to_direction to convert the discrete action (e.g., 2) to a grid direction with our agent location. To prevent the agent from going out of bounds of the grid, we clip the agent’s location to stay within bounds.
+
+#compute the agent’s reward by checking if the agent’s current position is equal to the target’s location.
+
+#Since the environment doesn’t truncate internally (we can apply a time limit wrapper to the environment during make()), we permanently set truncated to False.
+
+#We once again use _get_obs and _get_info to obtain the agent’s observation and auxiliary information.
+    def step(self, action):
+        # Map the action (element of {0,1,2,3}) to the direction we walk in
+        direction = self._action_to_direction[action]
+        # We use `np.clip` to make sure we don't leave the grid bounds
+        self._agent_location = np.clip(
+            self._agent_location + direction, 0, self.size - 1
+        )
+
+        # An environment is completed if and only if the agent has reached the target
+        terminated = np.array_equal(self._agent_location, self._target_location)
+        truncated = False
+        reward = 1 if terminated else 0  # the agent is only reached at the end of the episode
+        observation = self._get_obs()
+        info = self._get_info()
+
+        return observation, reward, terminated, truncated, info
+
+gym.register(
+    id="gymnasium_env/GridWorld-v0",
+    entry_point=GridWorldEnv,
+)
+
+#matplotlib to visualize the training reward and length.
+from matplotlib import pyplot as plt
+def get_moving_avgs(arr, window, convolution_mode):
+    return np.convolve(
+        np.array(arr).flatten(),
+        np.ones(window),
+        mode=convolution_mode
+    ) / window
+
+
+'''
+https://gymnasium.farama.org/api/wrappers/misc_wrappers/#gymnasium.wrappers.TimeLimit
+'''
+env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=n_episodes)
+
+agent = MovinAgent(
+    env=env,
+    learning_rate=learning_rate,
+    initial_epsilon=start_epsilon,
+    epsilon_decay=epsilon_decay,
+    final_epsilon=final_epsilon,
+)
+
+# Smooth over a 200 episode window
+rolling_length = 200
+fig, axs = plt.subplots(ncols=3, figsize=(12, 5))
+
+axs[0].set_title("Episode rewards")
+reward_moving_average = get_moving_avgs(
+    env.return_queue,
+    rolling_length,
+    "valid"
+)
+axs[0].plot(range(len(reward_moving_average)), reward_moving_average)
+
+axs[1].set_title("Episode lengths")
+length_moving_average = get_moving_avgs(
+    env.length_queue,
+    rolling_length,
+    "valid"
+)
+axs[1].plot(range(len(length_moving_average)), length_moving_average)
+
+axs[2].set_title("Training Error")
+training_error_moving_average = get_moving_avgs(
+    agent.training_error,
+    rolling_length,
+    "same"
+)
+axs[2].plot(range(len(training_error_moving_average)), training_error_moving_average)
+plt.tight_layout()
+plt.show()
+-
+lib/gymnasium/envs/classic_control/__init__.py
+lib/gymnasium/envs/__init__.py
+# the inner init file
+from gymnasium.envs.classic_control.acrobot import AcrobotEnv
+from gymnasium.envs.classic_control.cartpole import CartPoleEnv
+from gymnasium.envs.classic_control.continuous_mountain_car import (
+    Continuous_MountainCarEnv,
+)
+from gymnasium.envs.classic_control.mountain_car import MountainCarEnv
+from gymnasium.envs.classic_control.pendulum import PendulumEnv
+
+from gymnasium.envs.classic_control.gridEnv import GridEnv
+
+from gymnasium.envs.classic_control.gridEnv import GridEnv
+
+For the env register, I copy my env to the lib folder
+
+# the outer init file
+
+# Classic
+# ----------------------------------------
+
+register(
+    id="GridWorld-v0",
+    entry_point="gymnasium.envs.classic_control.gridEnv:GridEnv",
+    # vector_entry_point="gymnasium.envs.classic_control.cartpole:CartPoleVectorEnv",
+    # max_episode_steps=200,
+    # reward_threshold=195.0,
+)
+
+register(
+    id="CartPole-v0",
+    entry_point="gymnasium.envs.classic_control.cartpole:CartPoleEnv",
+    vector_entry_point="gymnasium.envs.classic_control.cartpole:CartPoleVectorEnv",
+    max_episode_steps=200,
+    reward_threshold=195.0,
+)
+
+2. Register the Environment using Gymnasium API
