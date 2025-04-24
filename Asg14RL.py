@@ -8,20 +8,31 @@ https://deltawaterfowl.org/two-students-awarded-dave-ankney-and-sandi-johnson-gr
 https://www.linkedin.com/comm/feed/update/urn:li:activity:7318004048995983361
 https://www.rrc.ca/truth-and-reconciliation/2025/04/14/honouring-voices-shaping-identity-an-update-on-our-indigenous-visual-identity-project/
 
-Join us for noon-hour sessions to learn about Ininew culture with Ivana Yellowback.
-We are honored to welcome back Ivana Yellowback to RRC Polytech for two special sessions of cultural sharing and learning.
-
-Wednesday, April 23 • Exchange District Campus, Room P107 • 12:00 – 1:00 PM
-Thursday, April 24 • Notre Dame Campus, Room F205 • 12:00 – 1:00 PM
-
-Ivana’s teachings offer a unique opportunity to deepen our understanding of Indigenous culture, traditions, and ways of knowing. Everyone is welcome to join, listen, and engage in this enriching experience.
 shoppers Deep Relief Lidocaine
 paxil
-250 Henderson hwy @11 nb@johnson
 https://www.etsy.com/ca/listing/1828046966/50-red-hydrangea-flower-seeds-hydrangea?
 hydrangea macrophylla fall rebloom variety seeds
 abhihassim1987@outlook.com
-/d2l/lms/dropbox/user/folder_submit_files.d2l?db=472419&grpid=0&isprv=0&bp=0&ou=561266
+
+ implemented and tested in Gazebo (classic
+• ROS2 Integration: The system must be developed using ROS2. 
+• Minimum ROS2 Interfaces: - At least 3 ROS2 Topics - At least 1 ROS2 Service - At least 1 ROS2 Action 
+• Final Deliverables: - A short video demo of your system - Project package in a zip file - A README file explaining the system architecture and instructions for running the project
+
+General Project Topics (Pick or Propose Your Own)
+4. Human-Robot Interaction: Develop a robot that responds to user input or environmental 
+cues  
+5. Environmental Monitoring: Simulate a robot that collects data from an environment (e.g., 
+temperature, gas levels) and reports it.
+
+cd /media/sf_Psiphon/ros2wsn/src && ros2 pkg create --build-type ament_python --license Apache-2.0 <package_name>
+cd /media/sf_Psiphon/ros2wsn && . install/setup.bash
+cd .. && python3 countdown_client.py
+cd .. && python3 countdown_client.py
+ros2 run a10_pubsub talker
+ros2 run a10_pubsub listener
+ros2 run battery_checker service
+ros2 run battery_checker client
 https://github.com/settings/billing/summary
 https://www.google.co.kr/search?q=ros2+tutorial+wth+custom&sca_esv=0841a0c4fe98f0f5&source=hp&ei=JBQBaNnUI6PE0PEPtMqusQI&iflsig=ACkRmUkAAAAAaAEiNI-YBkll877J9ZRjZbxejIYT7wCV&ved=0ahUKEwjZ9uysp9-MAxUjIjQIHTSlKyYQ4dUDCBA&uact=5&oq=ros2+tutorial+wth+custom&gs_lp=Egdnd3Mtd2l6Ihhyb3MyIHR1dG9yaWFsIHd0aCBjdXN0b20yBxAhGKABGAoyBxAhGKABGAoyBxAhGKABGAoyBRAhGJ8FMgUQIRifBTIFECEYnwUyBRAhGJ8FMgUQIRifBTIFECEYnwUyBRAhGJ8FSP45UJsFWKY4cAF4AJABAJgBfqABrhOqAQUxMi4xMrgBA8gBAPgBAZgCGaACvBSoAgrCAgoQABgDGOoCGI8BwgIREC4YgAQYsQMY0QMYgwEYxwHCAgsQABiABBixAxiDAcICCxAuGIAEGLEDGIMBwgIIEAAYgAQYsQPCAg4QLhiABBixAxiDARiKBcICDhAAGIAEGLEDGIMBGIoFwgIFEAAYgATCAgsQLhiABBjRAxjHAcICCBAuGIAEGNQCwgIOEC4YgAQYxwEYjgUYrwHCAgsQLhiABBixAxjUAsICCBAuGIAEGLEDwgIFEC4YgATCAggQLhiABBjlBMICCBAAGIAEGKIEwgIFEAAY7wXCAgsQABiABBiGAxiKBcICBhAAGBYYHsICBRAhGKABwgIEECEYFZgDBvEFRFu5N93GlKSSBwQ4LjE3oAfapQGyBwQ3LjE3uAe2FA&sclient=gws-wiz&sei=NhQBaJe2DKHF0PEPq-7i8Qc#fpstate=ive&vld=cid:baac61c2,vid:EosEikbZhiM,st:0
 https://stable-baselines3.readthedocs.io/en/master/modules/sac.html
