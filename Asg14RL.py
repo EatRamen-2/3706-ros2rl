@@ -16,14 +16,16 @@ abhihassim1987@outlook.com
 
  implemented and tested in Gazebo (classic
 • ROS2 Integration: The system must be developed using ROS2. 
-• Minimum ROS2 Interfaces: - At least 3 ROS2 Topics - At least 1 ROS2 Service - At least 1 ROS2 Action 
-• Final Deliverables: - A short video demo of your system - Project package in a zip file - A README file explaining the system architecture and instructions for running the project
+• Minimum ROS2 Interfaces:
+ - At least 3 ROS2 Topics - At least 1 ROS2 Service - At least 1 ROS2 Action 
+• Final Deliverables:
+ - A short video demo of your system
+ - Project package in a zip file
+ - A README file explaining the system architecture and instructions for running the project
 
 General Project Topics (Pick or Propose Your Own)
-4. Human-Robot Interaction: Develop a robot that responds to user input or environmental 
-cues  
-5. Environmental Monitoring: Simulate a robot that collects data from an environment (e.g., 
-temperature, gas levels) and reports it.
+4. Human-Robot Interaction: Develop a robot that responds to user input temperature, gas levels
+ and reports it.
 
 cd /media/sf_Psiphon/ros2wsn/src && ros2 pkg create --build-type ament_python --license Apache-2.0 <package_name>
 cd /media/sf_Psiphon/ros2wsn && . install/setup.bash
@@ -59,9 +61,7 @@ o Display a few random episodes using a text-based grid (or matplotlib if desire
 o Comment on learning behavior (Does the agent learn to reach the target quickly?)
 5. [Bonus] +2 points
 o Make the grid size increase gradually during training (e.g., start with 3x3, then 5x5, 
-then 7x7). Report how this affects learning speed and performance.
-
-'''
+then 7x7). Report how this affects learning speed and performance.'''
 python Asg14RL.py
 import matplotlib
 import gymnasium as gym
