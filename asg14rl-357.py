@@ -1,12 +1,16 @@
-# 1
+# 3,5,7
 import gymnasium as gym
+from stable_baselines3 import PPO
+from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3.common.callbacks import EvalCallback, BaseCallback
 import numpy as np
 import random
+
 
 class MovingTargetEnv(gym.Env):
     metadata = {"render_modes": ["console"]}
 
-    def __init__(self, grid_size=5, max_steps=50):
+    def __init__(self, grid_size=3, max_steps=50):
         self.grid_size = grid_size
         self.max_steps = max_steps
         self.action_space = gym.spaces.Discrete(4)  # up, down, left, right
@@ -85,7 +89,7 @@ while not terminated:
     env.render()
     print(f"Reward: {reward}, Terminated: {terminated}")
 
-# 2
+
 import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
@@ -121,39 +125,39 @@ model.save("ppo_moving_target")
 # Load the trained model
 model = PPO.load("ppo_moving_target")
 
-# 3
-import gymnasium as gym
-from stable_baselines3 import PPO
-from stable_baselines3.common.evaluation import evaluate_policy
-import matplotlib.pyplot as plt
-import numpy as np
+class GridSizeCallback(BaseCallback):
+    def __init__(self, env, verbose=0):
+        super(GridSizeCallback, self).__init__(verbose)
+        self.env = env
+        self.grid_sizes = [3, 5, 7]
+        self.current_grid_size_index = 0
+        self.timesteps_per_grid_size = 3333  # Change grid size every 3333 timesteps
 
-# Load the trained model
-model = PPO.load("ppo_moving_target")
+    def _on_step(self) -> bool:
+        if self.num_timesteps >= (self.current_grid_size_index + 1) * self.timesteps_per_grid_size:
+            self.current_grid_size_index += 1
+            if self.current_grid_size_index >= len(self.grid_sizes):
+                return True  # Stop training if exceeded the last grid size
+            new_grid_size = self.grid_sizes[self.current_grid_size_index]
+            print(f"Grid size changed to {new_grid_size}x{new_grid_size}")
+        return True
 
-# Evaluate the model
-env = MovingTargetEnv()
-env = FlattenObservation(env)
-mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=100)
-print(f"Mean reward: {mean_reward}, Std reward: {std_reward}")
+# Create an evaluation callback
+eval_callback = EvalCallback(eval_env, best_model_save_path='./logs/',
+                             log_path='./logs/', eval_freq=1000,
+                             deterministic=True, render=False)
 
-# Plot the average reward over episodes
-rewards = []
-for _ in range(100):
-    episode_rewards = []
-    observation, info = env.reset()
-    terminated = False
-    while not terminated:
-        target_array = np.array(observation[1])
-        target_array = np.pad(target_array, (0, 18))
-        action, _ = model.predict(target_array)
-        observation, reward, terminated, truncated, info = env.step(action)
-        episode_rewards.append(reward)
-    rewards.append(sum(episode_rewards))
+# Create a callback to change the grid size
+grid_size_callback = GridSizeCallback(env)
 
-plt.figure(figsize=(8, 6))
-plt.plot(np.arange(len(rewards)), rewards)
-plt.xlabel("Episode")
-plt.ylabel("Episode Reward")
-plt.title("PPO Agent Performance")
-plt.show()
+# Create the PPO model
+model = PPO("MlpPolicy", env, verbose=1, 
+            learning_rate=0.0003, batch_size=64, 
+            gamma=0.99, n_steps=128, 
+            n_epochs=4, clip_range=0.2)
+
+# Train the model
+model.learn(total_timesteps=10000, callback=[eval_callback, grid_size_callback])
+
+# Save the trained model
+model.save("ppo_moving_target_curriculum")
